@@ -30,19 +30,14 @@ if __name__ == '__main__':
                                         preprocess=data_config['preprocess'],
                                         output_dir=data_config['output_dir'])
     
-    print("Data generator: ", data_gen_train)
 
     def get_batch(data_iter):
-        print("Data iter: ", data_iter)
         for graphs, targets in data_iter:
-            print("Graphs: ", graphs)
             targets = tf.convert_to_tensor(targets)
             graphs, energies, etas, em_probs, cluster_had_weights, truth_particle_es, truth_particle_pts, track_pts, track_etas, sum_cluster_es, sum_lcw_es = convert_to_tuple(graphs)
             yield graphs, targets, energies, etas, em_probs, cluster_had_weights, truth_particle_es, truth_particle_pts, track_pts, track_etas, sum_cluster_es, sum_lcw_es
 
 
     samp_graph, samp_target, _, _, _, _, _, _, _, _, _, _= next(get_batch(data_gen_train.generator()))
-    #data_gen_train.kill_procs()
-    print("A sample graph: ", samp_graph)
+    data_gen_train.kill_procs()
     graph_spec = utils_tf.specs_from_graphs_tuple(samp_graph, True, True, True)
-    print("Graph spec: ", graph_spec)

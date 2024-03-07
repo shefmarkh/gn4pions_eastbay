@@ -288,6 +288,7 @@ class GraphDataGenerator:
                             track_z0 = event_data["trackZ0"][event_ind][track_index]
                             track_eta = event_data["trackEta"][event_ind][track_index]
                             track_phi = event_data["trackPhi"][event_ind][track_index]
+                            track_visibleCalHitCaloEnergy = event_data["trackVisibleCalHitCaloEnergy"][event_ind][track_index]
 
                         track_pt_scaled = (track_pt - scales['track_pt_mean'])/scales['track_pt_std']
                         track_z0_scaled = (track_z0 - scales['track_z0_mean'])/scales['track_z0_std']
@@ -329,7 +330,7 @@ class GraphDataGenerator:
                             'truthPartPt': truthPartPt.astype(np.float32), 'truthPartE': truth_particle_E.astype(np.float32),
                              'track_pt': track_pt.astype(np.float32), 'track_eta': track_eta.astype(np.float32),
                             'sum_cluster_E': sum_cluster_E.astype(np.float32), 'sum_lcw_E': sum_lcw_E.astype(np.float32)}
-                    target = np.reshape([truth_particle_E_scaled.astype(np.float32), 1], [1,2])
+                    target = np.reshape([track_visibleCalHitCaloEnergy.astype(np.float32), 1], [1,2])
                     preprocessed_data.append((graph, target))
 
             random.shuffle(preprocessed_data)

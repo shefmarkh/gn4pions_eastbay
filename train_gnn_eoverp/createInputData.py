@@ -43,6 +43,6 @@ if __name__ == '__main__':
     counter=0
     for file in fileList:
         theTree = uproot.open(file)["EventTree"]
-        df = theTree.arrays(variables, library="np")
+        df = theTree.arrays(variables, "1 == nTrack",library="np")
         np.save("test_"+str(counter)+".npy",df)
         counter+=1

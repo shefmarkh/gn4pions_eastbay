@@ -3,7 +3,9 @@ import numpy as np
 
 if __name__ == '__main__':
 
-    testFile="/Users/markhodgkinson/user.mhodgkin.33549591._000002.mltree.root"
+    fileList=["/Users/markhodgkinson/user.mhodgkin.33549591._000002.mltree.root"]
+    #fileList+=["/Users/markhodgkinson/user.mhodgkin.34403858._000001.mltree.root"]
+
 
     clusterVariables = ['cluster_cell_E', 'cluster_cell_ID',             
                          'nCluster','truthPartE', 'truthPartPt',
@@ -30,14 +32,17 @@ if __name__ == '__main__':
                  'trackChiSquared',
                  'trackNumberDOF',
                  'trackD0',
-                 'trackZ0'
+                 'trackZ0',
+                 'trackVisibleCalHitCaloEnergy'
                 ]
 
     truthVariables = ['truthPartE', 'truthPartPt']
              
     variables = clusterVariables + trackVariables + truthVariables
 
-
-    theTree = uproot.open(testFile)["EventTree"]
-    df = theTree.arrays(variables, library="np")
-    np.save("test.npy",df)
+    counter=0
+    for file in fileList:
+        theTree = uproot.open(file)["EventTree"]
+        df = theTree.arrays(variables, library="np")
+        np.save("test_"+str(counter)+".npy",df)
+        counter+=1

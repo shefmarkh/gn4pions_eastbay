@@ -152,6 +152,7 @@ class GraphDataGenerator:
 
         global_node = np.log10(event_data['cluster_E'][event_ind][cluster_ind])
         nodes = np.log10(event_data['cluster_cell_E'][event_ind][cluster_ind])
+
         nodes = np.append(nodes, self.cellGeo_data['cell_geo_sampling'][0][cell_IDmap])
         for f in self.nodeFeatureNames[2:4]:
             nodes = np.append(nodes, self.cellGeo_data[f][0][cell_IDmap])
@@ -174,18 +175,33 @@ class GraphDataGenerator:
         Returns senders, receivers, and edges
         """
 
+        #cluster_num_nodes represents the number of cells in this cluster
+        #so we have an array of representing all features for all cells in this cluster
+        #of shape (cluster_num_nodes, self.num_edgeFeatures)
         edge_inds = np.zeros((cluster_num_nodes, self.num_edgeFeatures))
-        for i, f in enumerate(self.edgeFeatureNames):
-            edge_inds[:, i] = self.cellGeo_data[f][0][cell_IDmap]
-        edge_inds[np.logical_not(np.isin(edge_inds, cell_IDmap))] = np.nan
 
+        #i is the index of the feature from the edgeFeatureNames list
+        for i, f in enumerate(self.edgeFeatureNames):            
+            #this fills the edge_inds array with the edge feature values for each cell in the cluster, using the cell ID's from the map
+            edge_inds[:, i] = self.cellGeo_data[f][0][cell_IDmap]
+        
+        #each feature is a cell index such as "nextInPhi" (next cell index in phi)
+        #if the cell ID's are not in the map (i.e they are -1), then we set the edge_inds to nan       
+        edge_inds[np.logical_not(np.isin(edge_inds, cell_IDmap))] = np.nan
+ 
+        #senders are the nonzero values by row-index of the result if isin - this has shape (nSenders,)
+        #edge_on_inds are the nonzero values by column-index of the result of isin - this has shape (cluster_num_nodes, self.num_edgeFeatures)
         senders, edge_on_inds = np.isin(edge_inds, cell_IDmap).nonzero()
+
         cluster_num_edges = len(senders)
         edges = np.zeros((cluster_num_edges, self.num_edgeFeatures))
         edges[np.arange(cluster_num_edges), edge_on_inds] = 1
 
+        #arrange elements of cell_IDmap in ascending order - has shape (cluster_num_nodes,)
         cell_IDmap_sorter = np.argsort(cell_IDmap)
+        #rank has shape (cluster_num_nodes, self.num_edgeFeatures)
         rank = np.searchsorted(cell_IDmap, edge_inds , sorter=cell_IDmap_sorter)
+        #receivers has shape (nSenders)
         receivers = cell_IDmap_sorter[rank[rank!=cluster_num_nodes]]
 
         return senders, receivers, edges
@@ -215,7 +231,6 @@ class GraphDataGenerator:
 
                 for i in range(num_clusters):
 
-                    cluster_calib_E = self.get_cluster_calib(event_data, event_ind, i)
                     cluster_EM_prob = event_data['cluster_EM_PROBABILITY'][event_ind][i]
                     cluster_E_0 = np.log10(event_data['cluster_E'][event_ind][0])
                     cluster_E_0_scaled = (cluster_E_0 - scales['cluster_e_mean'])/scales['cluster_e_std']
@@ -259,9 +274,6 @@ class GraphDataGenerator:
                                                         cluster_E_9_scaled = (cluster_E_9 - scales['cluster_e_mean'])/scales['cluster_e_std']
 
                     cluster_HAD_WEIGHT = event_data['cluster_HAD_WEIGHT'][event_ind][i]
-
-                    if cluster_calib_E is None:
-                        continue
 
                     cluster_eta = self.get_cluster_eta(event_data, event_ind, i)
 
@@ -312,7 +324,6 @@ class GraphDataGenerator:
                             'senders': senders.astype(np.int32),
                             'receivers': receivers.astype(np.int32),
                             'edges': edges.astype(np.float32),
-                            'cluster_calib_E': cluster_calib_E.astype(np.float32),
                             'cluster_eta': cluster_eta.astype(np.float32), 'cluster_EM_prob': cluster_EM_prob.astype(np.float32),
                             'cluster_E_0': cluster_E_0.astype(np.float32), 'cluster_HAD_WEIGHT': cluster_HAD_WEIGHT.astype(np.float32),
                             'truthPartPt': truthPartPt.astype(np.float32), 'truthPartE': truth_particle_E.astype(np.float32),

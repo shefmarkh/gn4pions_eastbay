@@ -20,7 +20,6 @@ def convert_to_tuple(graphs):
     cluster_energies = []
     cluster_etas = []
     cluster_EM_probs = []
-    cluster_calib_Es = []
     cluster_had_weights = []
     truth_particle_es = []
     truth_particle_pts = []
@@ -40,7 +39,6 @@ def convert_to_tuple(graphs):
         cluster_energies.append(graph['cluster_E_0'])
         cluster_etas.append(graph['cluster_eta'])
         cluster_EM_probs.append(graph['cluster_EM_prob'])
-        cluster_calib_Es.append(graph['cluster_calib_E'])
         cluster_had_weights.append(graph['cluster_HAD_WEIGHT'])
         truth_particle_es.append(graph['truthPartE'])
         truth_particle_pts.append(graph['truthPartPt'])
@@ -69,4 +67,4 @@ def convert_to_tuple(graphs):
             n_edge=n_edge
         )
 
-    return graph, cluster_energies, cluster_etas, cluster_EM_probs, cluster_calib_Es, cluster_had_weights, truth_particle_es, truth_particle_pts, track_pts, track_etas, sum_cluster_energies, sum_lcw_energies
+    return graph, cluster_energies, cluster_etas, cluster_EM_probs, cluster_had_weights, truth_particle_es, truth_particle_pts, track_pts, track_etas, sum_cluster_energies, sum_lcw_energies
